@@ -173,13 +173,8 @@ const runAmabot = async () => {
             }
             errorCount = 0
         } catch {
-            console.log('Error occurred, moving on')
-            errorCount++
-            if (errorCount === 3) {
-                await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
-            } else {
-                await page.reload({ waitUntil: 'domcontentloaded', timeout: 2000 })
-            }
+            console.log('Error occurred, going back to original offer ID')
+            await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
         }
     }
 }
