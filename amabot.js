@@ -135,8 +135,9 @@ const runAmabot = async () => {
             if (notAvailableError) {
                 // Unavailable
                 await sleep(500)
-                await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
+                await page.reload({ waitUntil: 'domcontentloaded', timeout: 2000 })
             } else {
+                console.log(`Purchasing Item`)
                 var continueButton = await page.$('[type="submit"]')
                 if (continueButton) {
                     await page.click('[type="submit"]')
@@ -177,7 +178,7 @@ const runAmabot = async () => {
             if (errorCount === 3) {
                 await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
             } else {
-                await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
+                await page.reload({ waitUntil: 'domcontentloaded', timeout: 2000 })
             }
         }
     }

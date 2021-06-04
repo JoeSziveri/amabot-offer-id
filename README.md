@@ -18,7 +18,9 @@ npm install
 
 Start Bot:
 ```
-yarn start [Amazon UPC Code] '[Offer ID]'
+yarn start [Amazon UPC Code] '[Offer ID]' --headless
+
+--headless will run bot without opening chromium window. Better on CPU but you cannot see what is happening with your own eyes.
 ```
 
 ## Warning
