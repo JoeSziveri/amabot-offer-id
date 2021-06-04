@@ -7,7 +7,7 @@ const { JSDOM } = jsdom;
 global.document = new JSDOM('<!DOCTYPE html><p>Hello world</p>').window.document;
 var Canvas = require("canvas");
 global.Image = Canvas.Image;
-
+var headlessRun = false
 const { email, password } = config
 var offerId = ""
 var productId = ""
@@ -116,7 +116,7 @@ const checkForPopups = async (page) => {
 const runAmabot = async () => {
     const browser = await puppeteer.launch({
         args: ['--disable-features=site-per-process'],
-        headless: false
+        headless: headlessRun
     })
     const page = await browser.newPage()
     await login(page)
@@ -184,4 +184,7 @@ const runAmabot = async () => {
 }
 productId = process.argv[2]
 offerId = process.argv[3]
+if (process.argv[4] && process.argv[4].includes('headless')) {
+    headlessRun = true
+}
 runAmabot()
