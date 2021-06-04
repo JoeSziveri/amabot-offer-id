@@ -1,0 +1,5 @@
+yarn start B08L8L9TCZ 900  |  EVGA 08G-P5-3755-KR GeForce RTX 3070 XC3 Ultra Gaming
+yarn start B08L8LG4M3 900  |  ASUS Dual NVIDIA GeForce RTX 3070 OC Edition Gaming Graphics Card
+yarn start B08MT6B58K 900  |  ASUS KO NVIDIA GeForce RTX 3070 OC Edition 8GB GDDR6 Gaming Graphics Card
+yarn start B08KWN2LZG 900  |  MSI Gaming GeForce RTX 3070 8GB Gaming Trio
+yarn start B08L8KC1J7 900  |  ASUS TUF Gaming NVIDIA GeForce RTX 3070 OC Edition Graphics Card
