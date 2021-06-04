@@ -90,7 +90,7 @@ const goToPage = async (page, url) => {
     }, 10)
 }
 const login = async (page) => {
-    await goToPage(page, 'https://amazon.com/gp/sign-in.html')
+    await goToPage(page, 'https://smile.amazon.com/ap/signin/ref=smi_ge2_ul_si_rl?_encoding=UTF8&ie=UTF8&openid.assoc_handle=amzn_smile&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.mode=checkid_setup&openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.ns.pape=http%3A%2F%2Fspecs.openid.net%2Fextensions%2Fpape%2F1.0&openid.pape.max_auth_age=0&openid.return_to=https%3A%2F%2Fsmile.amazon.com%2Fgp%2Fcharity%2Fhomepage.html%3Fie%3DUTF8%26newts%3D1%26orig%3D%252F')
     await page.type('#ap_email', email)
     await page.click('#continue')
     await page.waitForNavigation()
@@ -120,11 +120,11 @@ const runAmabot = async () => {
     })
     const page = await browser.newPage()
     await login(page)
-    await goToPage(page, `https://www.amazon.com/dp/${productId}`)
+    await goToPage(page, `https://smile.amazon.com/dp/${productId}`)
     await checkForPopups(page)
     let productElement = await page.$('#productTitle')
     let productText = await page.evaluate(getElementTextContent, productElement)
-    await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
+    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
     displayWelcome(productText)
     var purchased = false
     var errorCount = 0;
