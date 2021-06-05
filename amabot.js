@@ -135,7 +135,11 @@ const runAmabot = async () => {
             if (notAvailableError) {
                 // Unavailable
                 await sleep(500)
-                await page.reload({ waitUntil: 'domcontentloaded', timeout: 2000 })
+                try {
+                    await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
+                } catch {
+                    console.log('time out occurred')
+                }
             } else {
                 console.log(`Purchasing Item`)
                 var continueButton = await page.$('[type="submit"]')
@@ -158,22 +162,30 @@ const runAmabot = async () => {
                                 console.log(`Completed purchase for ${productText}`)
                                 purchased = true
                             } else {
+                                errorCount++
                                 console.log(`Failed to purchase after clicking place order`)
                                 await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
                             }
                         } else {
+                            errorCount++
                             console.log('no order button')
                         }
                     } else {
+                        errorCount++
                         console.log('no proceed to checkout button')
                     }
                 } else {
+                    errorCount++
                     console.log('no continue button')
                 }
             }
             errorCount = 0
         } catch {
             console.log('Error occurred, going back to original offer ID')
+            await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
+        }
+        if (errorCount > 0) {
+            console.log('Error Count larger than 0, going back to original offer ID')
             await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
         }
     }
