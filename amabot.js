@@ -133,6 +133,7 @@ const runAmabot = async () => {
             await checkForCaptcha(page)
             var notAvailableError = await page.$('.a-color-warning')
             if (notAvailableError) {
+                errorCount = 0
                 // Unavailable
                 await sleep(500)
                 try {
@@ -179,7 +180,6 @@ const runAmabot = async () => {
                     console.log('no continue button')
                 }
             }
-            errorCount = 0
         } catch {
             console.log('Error occurred, going back to original offer ID')
             await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
