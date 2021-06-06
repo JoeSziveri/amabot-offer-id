@@ -1,7 +1,7 @@
 # Amabot
 ## Setup
 - Set your `Buy it Now` default preferences on amazon
-- Install Node.js and yarn
+- Install Node.js
 - Create a json file named `config.json` in the main directory
 - Config example:
 ```
@@ -14,6 +14,8 @@
 Set Up Dependencies:
 ```
 npm install
+npm install --global yarn
+yarn
 ```
 
 Start Bot:
