@@ -120,13 +120,6 @@ const runAmabot = async () => {
     })
     const page = await browser.newPage()
     await login(page)
-    await goToPage(page, `https://www.amazon.com/cpe/yourpayments/settings/manageoneclick?ref_=v1c_title`)
-    var oneClickEnabled = await page.$('.a-switch')
-    if (oneClickEnabled) {
-        console.log('One Click Found')
-        await page.click('.a-switch')
-        await sleep(1000)
-    }
     await goToPage(page, `https://smile.amazon.com/dp/${productId}`)
     await checkForPopups(page)
     let productElement = await page.$('#productTitle')
@@ -150,7 +143,8 @@ const runAmabot = async () => {
                 }
             } else {
                 console.log(`Purchasing Item`)
-                await goToPage(page, `https://www.amazon.com/dp/${productId}`)
+                page.goto(`https://www.amazon.com/dp/${productId}`)
+                await page.waitForSelector('#buy-now-button', {timeout: 5000})
                 await checkForPopups(page)
                 var buyNowButton = await page.$('#buy-now-button')
                 if (buyNowButton) {
