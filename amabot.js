@@ -120,6 +120,13 @@ const runAmabot = async () => {
     })
     const page = await browser.newPage()
     await login(page)
+    await goToPage(page, `https://www.amazon.com/cpe/yourpayments/settings/manageoneclick?ref_=v1c_title`)
+    var oneClickEnabled = await page.$('.a-switch')
+    if (oneClickEnabled) {
+        console.log('One Click Found')
+        await page.click('.a-switch')
+        await sleep(1000)
+    }
     await goToPage(page, `https://smile.amazon.com/dp/${productId}`)
     await checkForPopups(page)
     let productElement = await page.$('#productTitle')
