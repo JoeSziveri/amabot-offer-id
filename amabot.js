@@ -143,41 +143,37 @@ const runAmabot = async () => {
                 }
             } else {
                 console.log(`Purchasing Item`)
-                var continueButton = await page.$('[type="submit"]')
-                if (continueButton) {
-                    await page.click('[type="submit"]')
+                await goToPage(page, `https://www.amazon.com/dp/${productId}`)
+                await checkForPopups(page)
+                var buyNowButton = await page.$('#buy-now-button')
+                if (buyNowButton) {
+                    await page.click('#buy-now-button')
                     await page.waitForNavigation()
                     await checkForPopups(page)
-                    var proceedToCheckout = await page.$('[data-feature-id="proceed-to-checkout-action"]')
-                    if (proceedToCheckout) {
-                        await page.click('[data-feature-id="proceed-to-checkout-action"]')
+                    var orderButton = await page.$('[name=placeYourOrder1]')
+                    if (orderButton) {
+                        console.log('order button found')
+                        await page.click('[name=placeYourOrder1]')
                         await page.waitForNavigation()
-                        await checkForPopups(page)
-                        var orderButton = await page.$('[name=placeYourOrder1]')
-                        if (orderButton) {
-                            console.log('order button found')
-                            await page.click('[name=placeYourOrder1]')
-                            await page.waitForNavigation()
-                            var purchaseSummary = await page.$('#widget-purchaseSummary')
-                            if (purchaseSummary) {
-                                console.log(`Completed purchase for ${productText}`)
-                                purchased = true
-                            } else {
-                                errorCount++
-                                console.log(`Failed to purchase after clicking place order`)
-                                await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
-                            }
+                        var confirmation = await page.$('#widget-purchaseConfirmationReview')
+                        var purchaseSummary = await page.$('#widget-purchaseSummary')
+                        var confirmation2 = await page.$('#widget-purchaseConfirmationStatus')
+                        if (purchaseSummary || confirmation || confirmation2) {
+                            console.log(`Completed purchase for ${productText}`)
+                            purchased = true
+                            return
                         } else {
                             errorCount++
-                            console.log('no order button')
+                            console.log(`Failed to purchase after clicking place order`)
+                            await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
                         }
                     } else {
                         errorCount++
-                        console.log('no proceed to checkout button')
+                        console.log('no order button')
                     }
                 } else {
                     errorCount++
-                    console.log('no continue button')
+                    console.log('no buy now button')
                 }
             }
         } catch {
