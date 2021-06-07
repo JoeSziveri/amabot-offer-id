@@ -129,7 +129,6 @@ const runAmabot = async () => {
     let productText = await page.evaluate(getElementTextContent, productElement)
     await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
     displayWelcome(productText)
-    page.screenshot({ path: `screenshots/${scDate}_WELCOME.png`, fullPage: true })
     var purchased = false
     var errorCount = 0;
     while (!purchased) {
