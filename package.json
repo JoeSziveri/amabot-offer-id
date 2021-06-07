@@ -6,6 +6,7 @@
   "dependencies": {
     "canvas": "^2.8.0",
     "jsdom": "^16.6.0",
+    "moment": "^2.29.1",
     "puppeteer": "^5.4.1",
     "xmlhttprequest": "^1.8.0"
   },

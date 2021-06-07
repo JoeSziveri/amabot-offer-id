@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer'
 import config from './config.json'
 import { CBL } from './cbl'
+import moment from 'moment'
 
 const jsdom = require("jsdom");
 const { JSDOM } = jsdom;
@@ -11,6 +12,8 @@ var headlessRun = false
 const { email, password } = config
 var offerId = ""
 var productId = ""
+var date = new Date().toLocaleTimeString();
+var scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const getElementTextContent = element => element?.textContent
 const retry = async (promiseFactory, retryCount) => {
@@ -101,7 +104,7 @@ const login = async (page) => {
     }
     await page.click('#signInSubmit')
     await page.waitForNavigation()
-    console.log('Logged In')
+    console.log(`[${date}] Logged In`)
 }
 
 const displayWelcome = (productText) => {
@@ -129,6 +132,8 @@ const runAmabot = async () => {
     var purchased = false
     var errorCount = 0;
     while (!purchased) {
+        date = new Date().toLocaleDateString()
+        scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
         try {
             await checkForCaptcha(page)
             var notAvailableError = await page.$('.a-color-warning')
@@ -139,50 +144,55 @@ const runAmabot = async () => {
                 try {
                     await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
                 } catch {
-                    console.log('time out occurred')
+                    console.log(`[${date}] time out occurred`)
                 }
             } else {
-                console.log(`Purchasing Item`)
+                page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
+                console.log(`[${date}] Purchasing Item`)
                 page.goto(`https://www.amazon.com/dp/${productId}`)
                 await page.waitForSelector('#buy-now-button', {timeout: 5000})
+                page.screenshot({ path: `screenshots/${scDate}_PRODUCT_PAGE_AFTER_START.png`, fullPage: true })
                 await checkForPopups(page)
                 var buyNowButton = await page.$('#buy-now-button')
                 if (buyNowButton) {
                     await page.click('#buy-now-button')
                     await page.waitForNavigation()
+                    page.screenshot({ path: `screenshots/${scDate}_AFTER_BUY_NOW.png`, fullPage: true })
                     await checkForPopups(page)
                     var orderButton = await page.$('[name=placeYourOrder1]')
                     if (orderButton) {
-                        console.log('order button found')
+                        console.log(`[${date}] order button found`)
                         await page.click('[name=placeYourOrder1]')
                         await page.waitForNavigation()
+                        page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
                         var confirmation = await page.$('#widget-purchaseConfirmationReview')
                         var purchaseSummary = await page.$('#widget-purchaseSummary')
                         var confirmation2 = await page.$('#widget-purchaseConfirmationStatus')
                         if (purchaseSummary || confirmation || confirmation2) {
-                            console.log(`Completed purchase for ${productText}`)
+                            console.log(`[${date}] Completed purchase for ${productText}`)
                             purchased = true
                             return
                         } else {
                             errorCount++
-                            console.log(`Failed to purchase after clicking place order`)
+                            console.log(`[${date}] Failed to purchase after clicking place order`)
                             await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
                         }
                     } else {
                         errorCount++
-                        console.log('no order button')
+                        console.log(`[${date}] no order button`)
                     }
                 } else {
                     errorCount++
-                    console.log('no buy now button')
+                    console.log(`[${date}] no buy now button`)
                 }
             }
         } catch {
-            console.log('Error occurred, going back to original offer ID')
+            page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
+            console.log(`[${date}] Error occurred, going back to original offer ID`)
             await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
         }
         if (errorCount > 0) {
-            console.log('Error Count larger than 0, going back to original offer ID')
+            console.log(`[${date}] Error Count larger than 0, going back to original offer ID`)
             await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
         }
     }
