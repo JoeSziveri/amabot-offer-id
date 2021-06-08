@@ -12,7 +12,7 @@ var headlessRun = false
 const { email, password } = config
 var offerId = ""
 var productId = ""
-var date = new Date().toLocaleTimeString();
+var date = new moment().format('hh:mm:ss A')
 var scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const getElementTextContent = element => element?.textContent
@@ -132,7 +132,7 @@ const runAmabot = async () => {
     var purchased = false
     var errorCount = 0;
     while (!purchased) {
-        date = new Date().toLocaleDateString()
+        date = new moment().format('hh:mm:ss A')
         scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
         try {
             await checkForCaptcha(page)
