@@ -134,6 +134,7 @@ const runAmabot = async () => {
     while (!purchased) {
         date = new moment().format('hh:mm:ss A')
         scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
+        await page.setCacheEnabled(false)
         try {
             await checkForCaptcha(page)
             var notAvailableError = await page.$('.a-color-warning')
