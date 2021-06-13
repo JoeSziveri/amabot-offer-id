@@ -11,7 +11,7 @@
 }
 ```
 
-Set Up Dependencies:
+Set Up Dependencies after installing Node.js by running these 3 commands:
 ```
 npm install
 npm install --global yarn
