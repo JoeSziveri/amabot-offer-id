@@ -26,5 +26,7 @@ yarn start [Amazon UPC Code] '[Offer ID]' --headless
 ```
 
 ## Warning
-Offer ID has price built into it, the bot will NOT check price before purchasing. Only use offer IDs from trusted sources
+Offer ID has price built into it, the bot will NOT check price before purchasing. Only use offer IDs from trusted sources.
+
+
 You can learn how to get Offer IDs here: https://www.youtube.com/watch?v=GBHHwAEUxp4&ab_channel=ZeroRiskFlips
