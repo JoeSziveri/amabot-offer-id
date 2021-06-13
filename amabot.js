@@ -148,10 +148,10 @@ const runAmabot = async () => {
                     console.log(`[${date}] time out occurred`)
                 }
             } else {
-                page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
+                await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
                 console.log(`[${date}] Purchasing Item`)
                 page.goto(`https://www.amazon.com/dp/${productId}`)
-                await page.waitForSelector('#buy-now-button', {timeout: 5000})
+                await page.waitForSelector('#buy-now-button', { timeout: 5000 })
                 page.screenshot({ path: `screenshots/${scDate}_PRODUCT_PAGE_AFTER_START.png`, fullPage: true })
                 await checkForPopups(page)
                 var buyNowButton = await page.$('#buy-now-button')
@@ -165,7 +165,8 @@ const runAmabot = async () => {
                         console.log(`[${date}] order button found`)
                         await page.click('[name=placeYourOrder1]')
                         await page.waitForNavigation()
-                        page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
+                        await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
+                        await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
                         var confirmation = await page.$('#widget-purchaseConfirmationReview')
                         var purchaseSummary = await page.$('#widget-purchaseSummary')
                         var confirmation2 = await page.$('#widget-purchaseConfirmationStatus')
@@ -188,7 +189,7 @@ const runAmabot = async () => {
                 }
             }
         } catch {
-            page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
+            await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
             console.log(`[${date}] Error occurred, going back to original offer ID`)
             await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
         }
