@@ -138,7 +138,8 @@ const runAmabot = async () => {
         try {
             await checkForCaptcha(page)
             var notAvailableError = await page.$('.a-color-warning')
-            if (notAvailableError) {
+            const price = await page.$eval('table tr td:nth-child(2)', el => { return el.innerHTML?.trim() });
+            if (notAvailableError && !price) {
                 errorCount = 0
                 // Unavailable
                 await sleep(500)
@@ -167,11 +168,9 @@ const runAmabot = async () => {
                         await page.waitForNavigation()
                         await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
                         await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
-                        var confirmation = await page.$('#widget-purchaseConfirmationReview')
                         var purchaseSummary = await page.$('#widget-purchaseSummary')
-                        var confirmation2 = await page.$('#widget-purchaseConfirmationStatus')
-                        if (purchaseSummary || confirmation || confirmation2) {
-                            console.log(`[${date}] Completed purchase for ${productText}`)
+                        if (purchaseSummary) {
+                            console.log(`[${date}] Completed purchase for ${productText?.trim()}`)
                             purchased = true
                             return
                         } else {
