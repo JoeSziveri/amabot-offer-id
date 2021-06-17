@@ -151,37 +151,42 @@ const runAmabot = async () => {
             } else {
                 await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
                 console.log(`[${date}] Purchasing Item`)
-                page.goto(`https://www.amazon.com/dp/${productId}`)
-                await page.waitForSelector('#buy-now-button', { timeout: 5000 })
-                page.screenshot({ path: `screenshots/${scDate}_PRODUCT_PAGE_AFTER_START.png`, fullPage: true })
-                await checkForPopups(page)
-                var buyNowButton = await page.$('#buy-now-button')
-                if (buyNowButton) {
-                    await page.click('#buy-now-button')
-                    await page.waitForNavigation()
-                    page.screenshot({ path: `screenshots/${scDate}_AFTER_BUY_NOW.png`, fullPage: true })
+                var continueBotton = await page.$('[type=submit]')
+                if (continueBotton) {
+                    await page.click('[type=submit]')
+                    await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
+                    page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
                     await checkForPopups(page)
-                    var orderButton = await page.$('[name=placeYourOrder1]')
-                    if (orderButton) {
-                        console.log(`[${date}] order button found`)
-                        await page.click('[name=placeYourOrder1]')
-                        await page.waitForNavigation()
-                        await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
-                        await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
-                        var purchaseSummary = await page.$('#widget-purchaseSummary')
-                        if (purchaseSummary) {
-                            console.log(`[${date}] Completed purchase for ${productText?.trim()}`)
-                            purchased = true
-                            return
+                    var proceedToCheckout = await page.$('[name=proceedToRetailCheckout]')
+                    if (proceedToCheckout) {
+                        await page.click('[name=proceedToRetailCheckout]')
+                        await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
+                        await checkForPopups(page)
+                        var orderButton = await page.$('[name=placeYourOrder1]')
+                        if (orderButton) {
+                            console.log(`[${date}] order button found`)
+                            await page.click('[name=placeYourOrder1]')
+                            await page.waitForNavigation()
+                            await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
+                            await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
+                            var purchaseSummary = await page.$('#widget-purchaseSummary')
+                            if (purchaseSummary) {
+                                console.log(`[${date}] Completed purchase for ${productText?.trim()}`)
+                                purchased = true
+                                return
+                            } else {
+                                errorCount++
+                                console.log(`[${date}] Failed to purchase after clicking place order`)
+                            }
                         } else {
                             errorCount++
-                            console.log(`[${date}] Failed to purchase after clicking place order`)
-                            await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
+                            console.log(`[${date}] no order button`)
                         }
                     } else {
                         errorCount++
-                        console.log(`[${date}] no order button`)
+                        console.log(`[${date}] no proceed to checkout`)
                     }
+
                 } else {
                     errorCount++
                     console.log(`[${date}] no buy now button`)
