@@ -137,7 +137,7 @@ const runAmabot = async () => {
         await page.setCacheEnabled(false)
         try {
             await checkForCaptcha(page)
-            var notAvailableError = await page.$('.a-color-warning')
+            var notAvailableError = await page.$('.a-color-error')
             // const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
             if (notAvailableError) {
                 errorCount = 0
