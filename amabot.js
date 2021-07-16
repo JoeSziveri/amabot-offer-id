@@ -138,8 +138,8 @@ const runAmabot = async () => {
         try {
             await checkForCaptcha(page)
             var notAvailableError = await page.$('.a-color-warning')
-            const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
-            if (notAvailableError && !price) {
+            // const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
+            if (notAvailableError) {
                 errorCount = 0
                 // Unavailable
                 await sleep(500)
