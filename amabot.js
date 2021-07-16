@@ -127,7 +127,7 @@ const runAmabot = async () => {
     await checkForPopups(page)
     let productElement = await page.$('#productTitle')
     let productText = await page.evaluate(getElementTextContent, productElement)
-    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
+    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
     displayWelcome(productText)
     var purchased = false
     var errorCount = 0;
@@ -195,11 +195,11 @@ const runAmabot = async () => {
         } catch {
             await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
             console.log(`[${date}] Error occurred, going back to original offer ID`)
-            await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
+            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
         }
         if (errorCount > 0) {
             console.log(`[${date}] Error Count larger than 0, going back to original offer ID`)
-            await goToPage(page, `https://www.amazon.com/gp/aws/cart/add-res.html?ASIN.1=${productId}&OfferListingId.1=${offerId}&Quantity.1=1&sa-no-redirect=1&pldnSite=1`)
+            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
         }
     }
 }
