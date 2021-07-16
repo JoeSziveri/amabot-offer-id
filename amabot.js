@@ -138,7 +138,7 @@ const runAmabot = async () => {
         try {
             await checkForCaptcha(page)
             var notAvailableError = await page.$('.a-color-warning')
-            const price = await page.$eval('table tr td:nth-child(2)', el => { return el.innerHTML?.trim() });
+            const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
             if (notAvailableError && !price) {
                 errorCount = 0
                 // Unavailable
@@ -192,7 +192,8 @@ const runAmabot = async () => {
                     console.log(`[${date}] no buy now button`)
                 }
             }
-        } catch {
+        } catch (e){
+            console.log(e)
             await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
             console.log(`[${date}] Error occurred, going back to original offer ID`)
             await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
