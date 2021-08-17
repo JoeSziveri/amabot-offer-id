@@ -149,19 +149,19 @@ const runAmabot = async () => {
                     console.log(`[${date}] time out occurred`)
                 }
             } else {
-                await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
+                // await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
                 console.log(`[${date}] Purchasing Item`)
                 var continueBotton = await page.$('[type=submit]')
                 if (continueBotton) {
                     await page.click('[type=submit]')
                     await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
-                    page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
+                    // page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
                     await checkForPopups(page)
                     var proceedToCheckout = await page.$('[name=proceedToRetailCheckout]')
                     if (proceedToCheckout) {
                         await page.click('[name=proceedToRetailCheckout]')
                         await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
-                        await checkForPopups(page)
+                        // await checkForPopups(page)
                         var orderButton = await page.$('[name=placeYourOrder1]')
                         if (orderButton) {
                             console.log(`[${date}] order button found`)
@@ -194,7 +194,7 @@ const runAmabot = async () => {
             }
         } catch (e){
             console.log(e)
-            await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
+            // await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
             console.log(`[${date}] Error occurred, going back to original offer ID`)
             await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
         }
