@@ -9,6 +9,8 @@ global.document = new JSDOM('<!DOCTYPE html><p>Hello world</p>').window.document
 var Canvas = require("canvas");
 global.Image = Canvas.Image;
 var headlessRun = false
+var verbose = false
+var captchaChecking = false
 const { email, password } = config
 var offerId = ""
 var productId = ""
@@ -27,10 +29,16 @@ const retry = async (promiseFactory, retryCount) => {
         return await retry(promiseFactory, retryCount - 1);
     }
 }
+const output = (message) => {
+    if (verbose) {
+        console.log(message)
+    }
+}
 const checkForCaptcha = async (page) => {
+    if (!captchaChecking) { return }
     var pageElementText = (await page.content()).toString()
     if (pageElementText.includes('captcha') || pageElementText.includes('discuss automated access to Amazon')) {
-        console.log('captcha detected')
+        output('captcha detected')
         var passwordContinue = await page.$('#ap_password')
         if (passwordContinue) {
             await page.type('#ap_password', password)
@@ -55,11 +63,11 @@ const checkForCaptcha = async (page) => {
         if (pageElementText) {
             var index = pageElementText.indexOf("https://images-na.ssl-images-amazon.com/captcha/")
             pageElementText = index != -1 ? pageElementText.substring(index, index + 79) : ""
-            console.log(`CAPTCHA URL: ${pageElementText}`)
+            output(`CAPTCHA URL: ${pageElementText}`)
         }
-        console.log('attempting to solve')
+        output('attempting to solve')
         var solution = await cbl.solve(pageElementText)
-        console.log(`Done solving. Solution: ${solution}`)
+        output(`Done solving. Solution: ${solution}`)
         var captchaInput = await page.$('#captchacharacters')
         if (captchaInput) {
             await page.type('#captchacharacters', solution)
@@ -68,7 +76,7 @@ const checkForCaptcha = async (page) => {
         await page.waitForNavigation()
         pageElementText = (await page.content()).toString()
         if (pageElementText.includes('captcha') || pageElementText.includes('discuss automated access to Amazon')) {
-            console.log('Captcha solve failed, trying again')
+            output('Captcha solve failed, trying again')
             return await checkForCaptcha(page)
         }
         return true
@@ -104,7 +112,7 @@ const login = async (page) => {
     }
     await page.click('#signInSubmit')
     await page.waitForNavigation()
-    console.log(`[${date}] Logged In`)
+    output(`[${date}] Logged In`)
 }
 
 const displayWelcome = (productText) => {
@@ -117,102 +125,114 @@ const checkForPopups = async (page) => {
     await checkForCaptcha(page)
 }
 const runAmabot = async () => {
-    const browser = await puppeteer.launch({
-        args: ['--disable-features=site-per-process'],
-        headless: headlessRun
-    })
-    const page = await browser.newPage()
-    await login(page)
-    await goToPage(page, `https://smile.amazon.com/dp/${productId}`)
-    await checkForPopups(page)
-    let productElement = await page.$('#productTitle')
-    let productText = await page.evaluate(getElementTextContent, productElement)
-    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
-    displayWelcome(productText)
-    var purchased = false
-    var errorCount = 0;
-    while (!purchased) {
-        date = new moment().format('hh:mm:ss A')
-        scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
-        await page.setCacheEnabled(false)
-        try {
-            await checkForCaptcha(page)
-            var notAvailableError = await page.$('.a-color-error')
-            // const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
-            if (notAvailableError) {
-                errorCount = 0
-                // Unavailable
-                await sleep(500)
-                try {
-                    await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
-                } catch {
-                    console.log(`[${date}] time out occurred`)
-                }
-            } else {
-                // await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
-                console.log(`[${date}] Purchasing Item`)
-                var continueBotton = await page.$('[type=submit]')
-                if (continueBotton) {
-                    await page.click('[type=submit]')
-                    await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
-                    // page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
-                    await checkForPopups(page)
-                    var proceedToCheckout = await page.$('[name=proceedToRetailCheckout]')
-                    if (proceedToCheckout) {
-                        await page.click('[name=proceedToRetailCheckout]')
-                        await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
-                        // await checkForPopups(page)
-                        var orderButton = await page.$('[name=placeYourOrder1]')
-                        if (orderButton) {
-                            console.log(`[${date}] order button found`)
-                            await page.click('[name=placeYourOrder1]')
-                            await page.waitForNavigation()
-                            await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
-                            await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
-                            var purchaseSummary = await page.$('#widget-purchaseSummary')
-                            if (purchaseSummary) {
-                                console.log(`[${date}] Completed purchase for ${productText?.trim()}`)
-                                purchased = true
-                                return
+    try {
+        const browser = await puppeteer.launch({
+            args: ['--disable-features=site-per-process'],
+            headless: headlessRun
+        })
+        const page = await browser.newPage()
+        await login(page)
+        await goToPage(page, `https://smile.amazon.com/dp/${productId}`)
+        await checkForPopups(page)
+        let productElement = await page.$('#productTitle')
+        let productText = await page.evaluate(getElementTextContent, productElement)
+        await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+        displayWelcome(productText)
+        var purchased = false
+        var errorCount = 0;
+        while (!purchased) {
+            date = new moment().format('hh:mm:ss A')
+            scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
+            await page.setCacheEnabled(false)
+            try {
+                await checkForCaptcha(page)
+                var notAvailableError = await page.$('.a-color-error')
+                // const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
+                if (notAvailableError) {
+                    errorCount = 0
+                    // Unavailable
+                    await sleep(500)
+                    try {
+                        await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
+                    } catch {
+                        output(`[${date}] time out occurred`)
+                    }
+                } else {
+                    // await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
+                    output(`[${date}] Purchasing Item`)
+                    var continueBotton = await page.$('[type=submit]')
+                    if (continueBotton) {
+                        await page.click('[type=submit]')
+                        await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
+                        // page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
+                        await checkForPopups(page)
+                        var proceedToCheckout = await page.$('[name=proceedToRetailCheckout]')
+                        if (proceedToCheckout) {
+                            await page.click('[name=proceedToRetailCheckout]')
+                            await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
+                            // await checkForPopups(page)
+                            var orderButton = await page.$('[name=placeYourOrder1]')
+                            if (orderButton) {
+                                output(`[${date}] order button found`)
+                                await page.click('[name=placeYourOrder1]')
+                                await page.waitForNavigation()
+                                await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
+                                await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
+                                var purchaseSummary = await page.$('#widget-purchaseSummary')
+                                if (purchaseSummary) {
+                                    output(`[${date}] Completed purchase for ${productText?.trim()}`)
+                                    purchased = true
+                                    return
+                                } else {
+                                    errorCount++
+                                    output(`[${date}] Failed to purchase after clicking place order`)
+                                }
                             } else {
                                 errorCount++
-                                console.log(`[${date}] Failed to purchase after clicking place order`)
+                                output(`[${date}] no order button`)
                             }
                         } else {
                             errorCount++
-                            console.log(`[${date}] no order button`)
+                            output(`[${date}] no proceed to checkout`)
                         }
+
                     } else {
                         errorCount++
-                        console.log(`[${date}] no proceed to checkout`)
+                        output(`[${date}] no buy now button`)
                     }
-
-                } else {
-                    errorCount++
-                    console.log(`[${date}] no buy now button`)
                 }
+            } catch (e) {
+                output(e)
+                // await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
+                output(`[${date}] Error occurred, going back to original offer ID`)
+                await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
             }
-        } catch (e){
-            console.log(e)
-            // await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
-            console.log(`[${date}] Error occurred, going back to original offer ID`)
-            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+            if (errorCount > 0) {
+                output(`[${date}] Error Count larger than 0, going back to original offer ID`)
+                await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+            }
         }
-        if (errorCount > 0) {
-            console.log(`[${date}] Error Count larger than 0, going back to original offer ID`)
-            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
-        }
+    } catch (e) {
+        output('Fatal error occured, restarting bot')
+        runAmabot()
     }
 }
 productId = process.argv[2]
 offerId = process.argv[3]
-if (process.argv[4] && process.argv[4].includes('headless')) {
+var args = process.argv.join(' ')
+if (args.includes('headless')) {
     headlessRun = true
+}
+if (args.includes('verbose')) {
+    verbose = true
+}
+if (args.includes('captcha')) {
+    captchaChecking = true
 }
 var fs = require('fs');
 var dir = './screenshots';
 
-if (!fs.existsSync(dir)){
+if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir);
 }
 runAmabot()
