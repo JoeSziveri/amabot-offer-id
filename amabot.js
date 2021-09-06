@@ -154,7 +154,7 @@ const bootTab = async (browser, offerId) => {
                 if (notAvailableError) {
                     errorCount = 0
                     // Unavailable
-                    await sleep(500)
+                    await sleep(300)
                     try {
                         await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
                     } catch {

@@ -17,12 +17,15 @@ npm install
 npm install --global yarn
 yarn
 ```
+Select which listings to run the bot on by setting "enabled" value in OfferIds.json to true. It is not reccommended to run the bot on more than 10 listings on a single IP. Use a residential proxy and a different account for every 10 listings. Exceeding 10 may risk getting your account soft banned. The bot can solve captchas if need be, but it will slow it down.
 
 Start Bot:
 ```
-yarn start [Amazon UPC Code] '[Offer ID]' --headless
+yarn start --headless
 
 --headless will run bot without opening chromium window. Better on CPU but you cannot see what is happening with your own eyes.
+--verbose will output more detailed console outputs.
+
 ```
 
 ## Warning
