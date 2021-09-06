@@ -1,5 +1,6 @@
 import puppeteer from 'puppeteer'
 import config from './config.json'
+import offerIds from './OfferIds.json'
 import { CBL } from './cbl'
 import moment from 'moment'
 
@@ -12,12 +13,9 @@ var headlessRun = false
 var verbose = false
 var captchaChecking = false
 const { email, password } = config
-var offerId = ""
-var productId = ""
 var date = new moment().format('hh:mm:ss A')
 var scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
-const getElementTextContent = element => element?.textContent
 const retry = async (promiseFactory, retryCount) => {
     try {
         return await promiseFactory();
@@ -115,9 +113,9 @@ const login = async (page) => {
     output(`[${date}] Logged In`)
 }
 
-const displayWelcome = (productText) => {
+const displayWelcome = (count) => {
     console.log('======================================================')
-    console.log(`Starting Offer ID Bot for ${productText.trim()}`)
+    console.log(`Successfully Booted Offer ID Bot for ${count} listings`)
     console.log('======================================================')
 }
 const checkForPopups = async (page) => {
@@ -132,12 +130,18 @@ const runAmabot = async () => {
         })
         const page = await browser.newPage()
         await login(page)
-        await goToPage(page, `https://smile.amazon.com/dp/${productId}`)
-        await checkForPopups(page)
-        let productElement = await page.$('#productTitle')
-        let productText = await page.evaluate(getElementTextContent, productElement)
+        page.close()
+        offerIds.filter(o => o.enabled).forEach(o => bootTab(browser, o.ID))
+        displayWelcome(offerIds.filter(o => o.enabled).length)
+    } catch (e) {
+        output(e)
+        output('Fatal error occured, restarting bot')
+        runAmabot()
+    }
+}
+const bootTab = async (browser, offerId) => {
+    const page = await browser.newPage()
         await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
-        displayWelcome(productText)
         var purchased = false
         var errorCount = 0;
         while (!purchased) {
@@ -145,9 +149,8 @@ const runAmabot = async () => {
             scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
             await page.setCacheEnabled(false)
             try {
-                await checkForCaptcha(page)
+                // await checkForCaptcha(page)
                 var notAvailableError = await page.$('.a-color-error')
-                // const price = await page.$eval('table tr td:nth-child(2)', el => { return el?.innerHTML?.trim() });
                 if (notAvailableError) {
                     errorCount = 0
                     // Unavailable
@@ -165,7 +168,7 @@ const runAmabot = async () => {
                         await page.click('[type=submit]')
                         await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
                         // page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
-                        await checkForPopups(page)
+                        // await checkForPopups(page)
                         var proceedToCheckout = await page.$('[name=proceedToRetailCheckout]')
                         if (proceedToCheckout) {
                             await page.click('[name=proceedToRetailCheckout]')
@@ -212,13 +215,7 @@ const runAmabot = async () => {
                 await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
             }
         }
-    } catch (e) {
-        output('Fatal error occured, restarting bot')
-        runAmabot()
-    }
 }
-productId = process.argv[2]
-offerId = process.argv[3]
 var args = process.argv.join(' ')
 if (args.includes('headless')) {
     headlessRun = true
