@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer'
 import config from './config.json'
 import offerIds from './OfferIds.json'
+import testIds from './TestOfferIds.json'
 import { CBL } from './cbl'
 import moment from 'moment'
 
@@ -9,6 +10,7 @@ const { JSDOM } = jsdom;
 global.document = new JSDOM('<!DOCTYPE html><p>Hello world</p>').window.document;
 var Canvas = require("canvas");
 global.Image = Canvas.Image;
+var testMode = false
 var headlessRun = false
 var verbose = false
 var captchaChecking = false
@@ -131,8 +133,9 @@ const runAmabot = async () => {
         const page = await browser.newPage()
         await login(page)
         page.close()
-        offerIds.filter(o => o.enabled).forEach(o => bootTab(browser, o.ID))
-        displayWelcome(offerIds.filter(o => o.enabled).length)
+        let ids = testMode ? testIds : offerIds
+        ids.filter(o => o.enabled).forEach(o => bootTab(browser, o.ID))
+        displayWelcome(ids.filter(o => o.enabled).length)
     } catch (e) {
         output(e)
         output('Fatal error occured, restarting bot')
@@ -141,80 +144,71 @@ const runAmabot = async () => {
 }
 const bootTab = async (browser, offerId) => {
     const page = await browser.newPage()
-        await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
-        var purchased = false
-        var errorCount = 0;
-        while (!purchased) {
-            date = new moment().format('hh:mm:ss A')
-            scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
-            await page.setCacheEnabled(false)
-            try {
-                // await checkForCaptcha(page)
-                var notAvailableError = await page.$('.a-color-error')
-                if (notAvailableError) {
-                    errorCount = 0
-                    // Unavailable
-                    await sleep(300)
-                    try {
-                        await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
-                    } catch {
-                        output(`[${date}] time out occurred`)
-                    }
-                } else {
-                    // await page.screenshot({ path: `screenshots/${scDate}_PURCHASE_ATTEMPT.png`, fullPage: true })
-                    output(`[${date}] Purchasing Item`)
-                    var continueBotton = await page.$('[type=submit]')
-                    if (continueBotton) {
-                        await page.click('[type=submit]')
-                        await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
-                        // page.screenshot({ path: `screenshots/${scDate}_AFTER_CONTINUE_NOW.png`, fullPage: true })
-                        // await checkForPopups(page)
-                        var proceedToCheckout = await page.$('[name=proceedToRetailCheckout]')
-                        if (proceedToCheckout) {
-                            await page.click('[name=proceedToRetailCheckout]')
-                            await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
-                            // await checkForPopups(page)
-                            var orderButton = await page.$('[name=placeYourOrder1]')
-                            if (orderButton) {
-                                output(`[${date}] order button found`)
-                                await page.click('[name=placeYourOrder1]')
-                                await page.waitForNavigation()
-                                await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
-                                await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
-                                var purchaseSummary = await page.$('#widget-purchaseSummary')
-                                if (purchaseSummary) {
-                                    output(`[${date}] Completed purchase for ${productText?.trim()}`)
-                                    purchased = true
-                                    return
-                                } else {
-                                    errorCount++
-                                    output(`[${date}] Failed to purchase after clicking place order`)
-                                }
-                            } else {
-                                errorCount++
-                                output(`[${date}] no order button`)
-                            }
+    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+    var purchased = false
+    var errorCount = 0;
+    while (!purchased) {
+        date = new moment().format('hh:mm:ss A')
+        scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
+        await page.setCacheEnabled(false)
+        try {
+            var notAvailableError = await page.$('.a-color-error')
+            if (notAvailableError) {
+                errorCount = 0
+                // Unavailable
+                await sleep(300)
+                try {
+                    await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
+                } catch {
+                    output(`[${date}] time out occurred`)
+                }
+            } else {
+                output(`[${date}] Purchasing Item`)
+                var continueBotton = await page.$('[type=submit]')
+                if (continueBotton) {
+                    await page.click('[type=submit]')
+                    await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
+                    await goToPage(page, `https://smile.amazon.com/gp/cart/desktop/go-to-checkout.html/ref=ox_sc_proceed?partialCheckoutCart=1&isToBeGiftWrappedBefore=0&proceedToRetailCheckout=Proceed+to+checkout&proceedToCheckout=1`)
+                    await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
+                    var orderButton = await page.$('[name=placeYourOrder1]')
+                    if (orderButton) {
+                        output(`[${date}] order button found`)
+                        if (testMode) {
+                            return
+                        }
+                        await page.click('[name=placeYourOrder1]')
+                        await page.waitForNavigation()
+                        await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
+                        await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
+                        var purchaseSummary = await page.$('#widget-purchaseSummary')
+                        if (purchaseSummary) {
+                            output(`[${date}] Completed purchase for ${productText?.trim()}`)
+                            purchased = true
+                            return
                         } else {
                             errorCount++
-                            output(`[${date}] no proceed to checkout`)
+                            output(`[${date}] Failed to purchase after clicking place order`)
                         }
-
                     } else {
                         errorCount++
-                        output(`[${date}] no buy now button`)
+                        output(`[${date}] no order button`)
                     }
+
+                } else {
+                    errorCount++
+                    output(`[${date}] no buy now button`)
                 }
-            } catch (e) {
-                output(e)
-                // await page.screenshot({ path: `screenshots/${scDate}_DEBUG.png`, fullPage: true })
-                output(`[${date}] Error occurred, going back to original offer ID`)
-                await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
             }
-            if (errorCount > 0) {
-                output(`[${date}] Error Count larger than 0, going back to original offer ID`)
-                await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
-            }
+        } catch (e) {
+            output(e)
+            output(`[${date}] Error occurred, going back to original offer ID`)
+            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
         }
+        if (errorCount > 0) {
+            output(`[${date}] Error Count larger than 0, going back to original offer ID`)
+            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+        }
+    }
 }
 var args = process.argv.join(' ')
 if (args.includes('headless')) {
@@ -225,6 +219,9 @@ if (args.includes('verbose')) {
 }
 if (args.includes('captcha')) {
     captchaChecking = true
+}
+if (args.includes('test')) {
+    testMode = true
 }
 var fs = require('fs');
 var dir = './screenshots';
