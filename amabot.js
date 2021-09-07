@@ -134,7 +134,7 @@ const runAmabot = async () => {
         await login(page)
         page.close()
         let ids = testMode ? testIds : offerIds
-        ids.filter(o => o.enabled).forEach(o => bootTab(browser, o.ID))
+        ids.filter(o => o.enabled).forEach(o => bootTab(browser, o))
         displayWelcome(ids.filter(o => o.enabled).length)
     } catch (e) {
         output(e)
@@ -142,9 +142,9 @@ const runAmabot = async () => {
         runAmabot()
     }
 }
-const bootTab = async (browser, offerId) => {
+const bootTab = async (browser, listing) => {
     const page = await browser.newPage()
-    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+    await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
     var purchased = false
     var errorCount = 0;
     while (!purchased) {
@@ -163,7 +163,7 @@ const bootTab = async (browser, offerId) => {
                     output(`[${date}] time out occurred`)
                 }
             } else {
-                output(`[${date}] Purchasing Item`)
+                output(`[${date}] Purchasing ${listing.name}`)
                 var continueBotton = await page.$('[type=submit]')
                 if (continueBotton) {
                     await page.click('[type=submit]')
@@ -172,7 +172,7 @@ const bootTab = async (browser, offerId) => {
                     await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
                     var orderButton = await page.$('[name=placeYourOrder1]')
                     if (orderButton) {
-                        output(`[${date}] order button found`)
+                        output(`[${date}] Place Order Button found for ${listing.name}`)
                         if (testMode) {
                             return
                         }
@@ -182,31 +182,31 @@ const bootTab = async (browser, offerId) => {
                         await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
                         var purchaseSummary = await page.$('#widget-purchaseSummary')
                         if (purchaseSummary) {
-                            output(`[${date}] Completed purchase for ${productText?.trim()}`)
+                            output(`[${date}] Completed purchase for ${listing.name}`)
                             purchased = true
                             return
                         } else {
                             errorCount++
-                            output(`[${date}] Failed to purchase after clicking place order`)
+                            output(`[${date}] Failed to purchase ${listing.name} after clicking place order`)
                         }
                     } else {
                         errorCount++
-                        output(`[${date}] no order button`)
+                        output(`[${date}] No place order button found for ${listing.name}`)
                     }
 
                 } else {
                     errorCount++
-                    output(`[${date}] no buy now button`)
+                    output(`[${date}] No continue button found on offer page`)
                 }
             }
         } catch (e) {
             output(e)
             output(`[${date}] Error occurred, going back to original offer ID`)
-            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
         }
         if (errorCount > 0) {
             output(`[${date}] Error Count larger than 0, going back to original offer ID`)
-            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${offerId}`)
+            await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
         }
     }
 }
