@@ -7,6 +7,13 @@
         "enabled": false
     },
     {
+        "name": "Gigabyte AURUS 3060",
+        "price": 499,
+        "ASIN": "B09719T6FT",
+        "ID": "vg5ZODM%2FQxRJE3hil%2FexrcHaiQSwXX5o8X1AAUL2%2FR5Ie8u45%2BZHYO3m6KJmKrtOgCWSx8Xwx1L98YnlX3kfrbMiNUBSdHfaB8xVIPlF%2B9ThnruI9tYWzHM6cU6tDNIN%2BikZAapjPUz1mYbH1GSHtQ%3D%3D",
+        "enabled": false
+    },
+    {
         "name": "Zotac 3070",
         "price": 659,
         "ASIN": "B08LF1CWT2",
@@ -31,7 +38,7 @@
         "name": "Gigabyte 3070",
         "price": 699,
         "ASIN": "B098Q4M4WH",
-        "ID": "RhxjvwtkGX0XZ%2F9NuBawNSo0jLcS1c87u1G1VqZZXFOD5LnCS6p0RVyVam9qLdtTLbhxLdXtlTwptsD%2BkrgKlXM3bAPYF%2FR2TZVU2IxGgeqr2BVaLxIbcQ%3D%3D",
+        "ID": "fALDSrGQxR5BxLsPjbfkbPjjc0L5mQn2QMt9EUh9sNzVtatsIPf2CTpxW2lqvvInx%2Bz9%2BCbcBiStCJUpeDadBS1kHan28yQWv3c11UrQBu1ohtMtr%2Bt6hQ%3D%3D",
         "enabled": false
     },
     {
@@ -63,10 +70,17 @@
         "enabled": false
     },
     {
+        "name": "ASYS Dual 3060 ti OC",
+        "price": 567,
+        "ASIN": "B08P2HBBLX",
+        "ID": "L1%2Frx1XVofriW4oPMS0f7UikbvPtWWL4OF8X%2BONzVLLoMjE3yo%2FVTcMjLRrM5CKoFhOF%2BGKrERNjgjPa3ff52kaaYc%2FNn%2BePS0%2BwsivoXE7VWHyfTmn9nw%3D%3D",
+        "enabled": true
+    },
+    {
         "name": "EVGA 3070 ti",
         "price": 799,
         "ASIN": "B096WM6JFS",
-        "ID": "wswQBVAkYFEnHbgAraXpvkwSd3UoZsWtV3ftlM%2FySPxgPBfieogMsukFWVt8YNu2S41xvw%2B3md5gEdXZL7Jr%2BTXphaEK6Nhn8owWp8BsernDg8H6%2B33Kn4zGf4VOsdrfEwmENeqxqVZCbwbtXQeB2w%3D%3D",
+        "ID": "cFy%2F7rnXBTODdIgtQZcQ7VT6hD5eihp6olK%2F5%2BzOTWTvpRKOTPITEAD0GZHBFdAnIAU2lZ1KZ4Vixpf%2Bk9s5aex%2Foz3M7PzkyuJFyaDM2BG6UPe04zSS%2FA%3D%3D",
         "enabled": false
     },
     {
@@ -92,7 +106,7 @@
     },
     {
         "name": "Asus TUF 3090",
-        "price": 2068,
+        "price": 2120,
         "ASIN": "B097CMQVF4",
         "ID": "5yL02V2td3SAtwLx34qv6oN3f%2FZo4hQYmhA5C6Kye4oP8TCJXru869W2zOY%2BFkAlU2tXfkOJb1cb2Ffu6Ro%2BZ58%2FPAb8%2B94fjBE0r3%2BgOlbKTdjl8yP57Q%3D%3D",
         "enabled": true

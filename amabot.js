@@ -31,7 +31,7 @@ const retry = async (promiseFactory, retryCount) => {
 }
 const output = (message) => {
     if (verbose) {
-        console.log(message)
+        console.log(`[${date}] ${message}`)
     }
 }
 const checkForCaptcha = async (page) => {
@@ -142,6 +142,44 @@ const runAmabot = async () => {
         runAmabot()
     }
 }
+const attemptFallback = async (page, listing) => {
+    try {
+        output(`Attempting fallback checkout for ${listing.name}`)
+        if (!listing.ASIN) {
+            output(`${listing.name} does not have ASIN, fallback checkout not available`)
+        }
+        await page.bringToFront()
+        await goToPage(page, `https://smile.amazon.com/dp/${listing.ASIN}`)
+        await page.waitForSelector('#buy-now-button', { timeout: 3000 })
+        await page.click('#buy-now-button')
+        await page.bringToFront()
+        try {
+            await page.waitForSelector('iframe#turbo-checkout-iframe')
+            const checkoutModel = await page.$('iframe#turbo-checkout-iframe')
+            const frame = await checkoutModel.contentFrame()
+            await frame.waitForSelector('#turbo-checkout-pyo-button')
+            output(`Attempting turbo purchase for ${listing.name}`)
+            if (testMode) {
+                return
+            }
+            await frame.click('#turbo-checkout-pyo-button')
+        } catch (e) {
+            output(e)
+            output(`Failed turbo for ${listing.name}`)
+        }
+        await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
+        await page.bringToFront()
+        output(`Attempting fallback purchase for ${listing.name}`)
+        if (testMode) {
+            return
+        }
+        await page.click('[name=placeYourOrder1]')
+    } catch (e) {
+        output(e)
+        output(`Failed fallback for ${listing.name}`)
+    }
+    
+}
 const bootTab = async (browser, listing) => {
     const page = await browser.newPage()
     await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
@@ -152,23 +190,27 @@ const bootTab = async (browser, listing) => {
         scDate = new moment().format('YYYY-MM-DD_hh-mm-ss');
         await page.setCacheEnabled(false)
         try {
+            await page.bringToFront()
             var notAvailableError = await page.$('.a-color-error')
             if (notAvailableError) {
                 errorCount = 0
                 // Unavailable
-                await sleep(300)
+                await sleep(400)
                 try {
                     await page.reload({ waitUntil: 'domcontentloaded', timeout: 8000 })
                 } catch {
-                    output(`[${date}] time out occurred`)
+                    output(`time out occurred`)
                 }
             } else {
-                output(`[${date}] Purchasing ${listing.name}`)
+                output(`Purchasing ${listing.name}`)
+                await page.bringToFront()
                 var continueBotton = await page.$('[type=submit]')
                 if (continueBotton) {
+                    await page.bringToFront()
                     await page.click('[type=submit]')
                     await page.waitForSelector('[name=proceedToRetailCheckout]', { timeout: 3000 })
                     await goToPage(page, `https://smile.amazon.com/gp/cart/desktop/go-to-checkout.html/ref=ox_sc_proceed?partialCheckoutCart=1&isToBeGiftWrappedBefore=0&proceedToRetailCheckout=Proceed+to+checkout&proceedToCheckout=1`)
+                    await page.bringToFront()
                     await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
                     var orderButton = await page.$('[name=placeYourOrder1]')
                     if (orderButton) {
@@ -200,6 +242,7 @@ const bootTab = async (browser, listing) => {
                 }
             }
         } catch (e) {
+            await attemptFallback(page, listing)
             output(e)
             output(`[${date}] Error occurred, going back to original offer ID`)
             await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
