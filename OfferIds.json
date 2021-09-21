@@ -25,14 +25,14 @@
         "price": 469,
         "ASIN": "B097CMQVF4",
         "ID": "V8j7TshCjPY6qubUQzQP%2Bj4e%2FKMB31ohidNpKArtoA8YT%2FLTSWYqMKQQRzTxk1GWwsp2oHRokLAxpivshOPr84wS20KrgQMjEyPcGRYGwUPzmnGvYbnrXw%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "EVGA 3060ti",
         "price": 469,
         "ASIN": "B08W8DGK3X",
         "ID": "HXwKdfzWlF4j3iaWiTlZg0oBI9xKSJ2jGZC291v3JbE0hhimQwO25%2BkLAFXDq1e5slhyWEHxoiskrKYCxOjJ3IlIx1q0JygtN1uunZWYzhC81qgI8ALD6M8zdpAGXlF92Tt1v5ODGRM8dCW5Dgmz%2Bg%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "Gigabyte 3070",
@@ -74,7 +74,7 @@
         "price": 567,
         "ASIN": "B08P2HBBLX",
         "ID": "L1%2Frx1XVofriW4oPMS0f7UikbvPtWWL4OF8X%2BONzVLLoMjE3yo%2FVTcMjLRrM5CKoFhOF%2BGKrERNjgjPa3ff52kaaYc%2FNn%2BePS0%2BwsivoXE7VWHyfTmn9nw%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "EVGA 3070 ti",
@@ -109,48 +109,62 @@
         "price": 2120,
         "ASIN": "B097CMQVF4",
         "ID": "5yL02V2td3SAtwLx34qv6oN3f%2FZo4hQYmhA5C6Kye4oP8TCJXru869W2zOY%2BFkAlU2tXfkOJb1cb2Ffu6Ro%2BZ58%2FPAb8%2B94fjBE0r3%2BgOlbKTdjl8yP57Q%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "MSI 3080 TRIO LHR",
         "price": 1150,
         "ASIN": "B0995S7548",
         "ID": "NCvz5cZ%2BLssOsNF7TY9hgXaHrAlleI1Zu0SDmafQ%2Bu%2BfN%2B0qtyxPDL25e26%2F%2FD6xQ7Vs%2B%2FcyKKcl75YZa9Tpn%2BIzzi6eHcKouLy%2BXPpVOjEQfu6vLcauMw%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "EVGA 3080ti",
         "price": 1399,
         "ASIN": "B09622N253",
         "ID": "Zls6IVC/q4cw/G4XjdKYrFtbokJLU/VljjuabSaRRCQVOdYpSA6kC6oGRkGAcnSCKk1jMhVjaGbCXNK0k/srHzaTDwLSWLs4Sv3coSbn6hstRJSD5xLaOFaahzUeKMOgcKUW4sUSnRsWMaXs/934RA",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "Gigabyte 3090 Vision",
         "price": 2149,
         "ASIN": "B083GS45CR",
         "ID": "SfnR3eFB7d1yZKZnXuE%2BjksX1YL84OBp2nlAQ7RSB2NQUMAGaYqdny5v4GQxQgneqOuWw6AULAtH7y4gIWdcg3nnG0E9ko7d0iGkYHxbNDQpyIw4n7500Q%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "MSI 3090 Ventus",
         "price": 2135,
         "ASIN": "B09816KR58",
         "ID": "UxXYuHrIDSi4RcqWX11rgxhhVxUaDYCEZLToE7Eru%2BvQ1ABRf4CQN0OPkNpDAjGPYGICWqLrSpksB9h4NoVF/IQ/e2tkw5v2qpcGH8x0wl2DxAuw/tkfXQ%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "EVGA 3090 FTW3 Ultra",
         "price": 1836,
         "ASIN": "B08J5F3G18",
         "ID": "4o0Vmo0uOnECbc6Lw6Ec13id7vvJtj710LLvFvOjKBTXO%2BtNs0iIXEkYzdxgs%2B51exTjJX4H%2FibuSfLa5PV%2BmLVuqVZunq%2B1aR9Tpt1F91EYMSH36Bjvww%3D%3D",
-        "enabled": true
+        "enabled": false
     },
     {
         "name": "ASUS Rog Strix 3090",
         "price": 2190,
         "ASIN": "B08J6GMWCQ",
         "ID": "hIfzCwT40h6YmEwBBvC%2BqrPX0uJMf6K9qOZQ9%2BaT5pa%2BS%2BQ2cz9GnnnjqSeKPKKX4OFJQiu9VpegKA4%2FYZQm%2Fbb32%2FU5P73QEuj8aXPWSHJQjCb1f3WTVw%3D%3D",
+        "enabled": false
+    },
+    {
+        "name": "PS5 Digital",
+        "price": 399,
+        "ASIN": "B08FC6MR62",
+        "ID": "E1mgxOfP6AwnqCiO8SYDXIReFbnKFI062ROAyRTlL64gx048DrUZxKjZ149yLil6ISutcC57X8VX8f404c50%2BCJk/R9lMMoJn7fD5NqY84ZCxqe78ijlyQ%3D%3D",
+        "enabled": true
+    },
+    {
+        "name": "PS5 Disc",
+        "price": 499,
+        "ASIN": "B08FC5L3RG",
+        "ID": "jEkVzQ4RN2fyCUVNr0cintbrp%2BQ9YtPODZ7IQm885xByw7hefHpm8IF60rpybcf%2BuujQ87TpOcPCaGp0YNNztPSYGrZa3J2BMrdcMVuIVPO03uVOHrSdEB7XuHZlLBBPn/hSxZYR%2BGxpznGt88/ICR%2BOTna6ajJKD",
         "enabled": true
     }
 ]

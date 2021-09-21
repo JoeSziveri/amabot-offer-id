@@ -112,7 +112,7 @@ const login = async (page) => {
     }
     await page.click('#signInSubmit')
     await page.waitForNavigation()
-    output(`[${date}] Logged In`)
+    output(`Logged In`)
 }
 
 const displayWelcome = (count) => {
@@ -160,25 +160,34 @@ const attemptFallback = async (page, listing) => {
             await frame.waitForSelector('#turbo-checkout-pyo-button')
             output(`Attempting turbo purchase for ${listing.name}`)
             if (testMode) {
-                return
+                return true
             }
             await frame.click('#turbo-checkout-pyo-button')
+            await page.waitForNavigation()
+            await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
+            await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
         } catch (e) {
+            
             output(e)
             output(`Failed turbo for ${listing.name}`)
+            return false
         }
         await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
         await page.bringToFront()
         output(`Attempting fallback purchase for ${listing.name}`)
         if (testMode) {
-            return
+            return true
         }
         await page.click('[name=placeYourOrder1]')
+        await page.waitForNavigation()
+        await page.waitForSelector('#widget-purchaseSummary', { timeout: 2000 })
+        await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
     } catch (e) {
         output(e)
         output(`Failed fallback for ${listing.name}`)
+        return false
     }
-    
+    return false
 }
 const bootTab = async (browser, listing) => {
     const page = await browser.newPage()
@@ -214,7 +223,7 @@ const bootTab = async (browser, listing) => {
                     await page.waitForSelector('[name=placeYourOrder1]', { timeout: 6000 })
                     var orderButton = await page.$('[name=placeYourOrder1]')
                     if (orderButton) {
-                        output(`[${date}] Place Order Button found for ${listing.name}`)
+                        output(`Place Order Button found for ${listing.name}`)
                         if (testMode) {
                             return
                         }
@@ -224,31 +233,34 @@ const bootTab = async (browser, listing) => {
                         await page.screenshot({ path: `screenshots/${scDate}_AFTER_PLACE_ORDER.png`, fullPage: true })
                         var purchaseSummary = await page.$('#widget-purchaseSummary')
                         if (purchaseSummary) {
-                            output(`[${date}] Completed purchase for ${listing.name}`)
+                            output(`Completed purchase for ${listing.name}`)
                             purchased = true
                             return
                         } else {
                             errorCount++
-                            output(`[${date}] Failed to purchase ${listing.name} after clicking place order`)
+                            output(`Failed to purchase ${listing.name} after clicking place order`)
                         }
                     } else {
                         errorCount++
-                        output(`[${date}] No place order button found for ${listing.name}`)
+                        output(`No place order button found for ${listing.name}`)
                     }
 
                 } else {
                     errorCount++
-                    output(`[${date}] No continue button found on offer page`)
+                    output(`No continue button found on offer page`)
                 }
             }
         } catch (e) {
-            await attemptFallback(page, listing)
+            if (await attemptFallback(page, listing)) {
+                output(`Fallback successful for ${listing.name}`)
+                return
+            }
             output(e)
-            output(`[${date}] Error occurred, going back to original offer ID`)
+            output(`Error occurred, going back to original offer ID`)
             await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
         }
         if (errorCount > 0) {
-            output(`[${date}] Error Count larger than 0, going back to original offer ID`)
+            output(`Error Count larger than 0, going back to original offer ID`)
             await goToPage(page, `https://smile.amazon.com/gp/aws/cart/add-res.html?Quantity.1=1&OfferListingId.1=${listing.ID}`)
         }
     }
